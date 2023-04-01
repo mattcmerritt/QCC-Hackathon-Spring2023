@@ -1,3 +1,6 @@
+# SQL Backend
+import mysql.connector
+
 # Setting Up Window
 import tkinter
 from tkinter import *
@@ -7,6 +10,14 @@ curr_datetime = datetime.now()
 window = tkinter.Tk()
 window.geometry("500x500")
 
+def connect_to_server(user, password):
+    return mysql.connector.connect(user=user, passwd=password, host='localhost', database='schedules')
+
+# Connection
+# TODO: REMOVE USER INFORMATION BEFORE COMMITS!
+connection = connect_to_server('application', 'Requesting10Schedule!')
+cursor = connection.cursor()
+
 # Title
 title = tkinter.Label(window, text="Schedule a Meeting", font=('Arial', 20))
 title.pack()
@@ -14,7 +25,14 @@ line = ttk.Separator(window, orient=HORIZONTAL)
 line.pack(fill='x')
 
 # Creating Lists
-members_list = ["Micheal", "Matthew", "Ty"]
+cursor.callproc('usp_GetAllUsers')
+
+# Listing out current team members
+members_list = []
+for results in cursor.stored_results():
+    for name in results:
+        members_list.append(name[0])
+
 priority_value = range(1,6)
 window.members_dict = {}
 days_list = range(1,31)
@@ -40,10 +58,6 @@ for i, member in enumerate(members_list):
     window.members_dict[member].var = IntVar()                          # New IntVar for each member
     window.members_dict[member]['variable'] = window.members_dict[member].var
     window.members_dict[member].pack()
-def checkMembers():
-    for result in window.members_dict.values():
-        if result.var.get():
-            print(format(result['text']))
 
 # DAYS: Labeling
 dateLabel = tkinter.Label(window, text="Date:", font=('Arial', 10))
@@ -71,13 +85,43 @@ time_selected.set(nextAvailableMeetingTime)
 window.timeOfMeeting = OptionMenu(window, time_selected, *time_list)
 window.timeOfMeeting.pack()
 
+def getSelectedMembers():
+    selected = []
+    for result in window.members_dict.values():
+        if result.var.get():
+            selected.append(format(result['text']))
+    return selected
+
 def getEverything():
-    checkMembers()
-    print(day_selected.get())
-    print(time_selected.get())
+    members = getSelectedMembers()
+    day = day_selected.get()
+    time_range = time_selected.get()
+
+    (startTime, endTime) = time_range.split(' - ')
+                                            
+    start = "2023-04-" + str(day) + " " + startTime + ":00"
+    end = "2023-04-" + str(day) + " " + endTime + ":00"                          
+
+    conflicts = []
+    for member in members:
+        # print(f'usp_GetUserScheduleEntriesInRange({member}, {start}, {end})')
+        cursor.callproc('usp_GetUserScheduleEntriesInRange', (member, start, end))
+
+        for result in cursor.stored_results():
+            all = result.fetchall()
+            for conflict in all:
+                conflicts.append(conflict)
+
+    for conflict in conflicts:
+        print(f'{conflict[0]} has a conflict at this time with priority {conflict[3]}')
+    if len(conflicts) == 0:
+        print("No one has any conflicts at that time!")
 
 ## Check BUTTON
 check_availability = Button(window, text='Check Availability', bd='5', command=getEverything)
 check_availability.pack()
 
 window.mainloop()
+
+cursor.close()
+connection.close()
