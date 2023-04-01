@@ -73,22 +73,22 @@ def create_entry_ui():
 
 def save_all_entries():
     for i in range(0, len(entry_usernames)):
-        f_day = str(entry_days[i])
+        f_day = str(entry_days[i].get())
         if(len(f_day) == 1):
             f_day = "0" + f_day
         
-        f_start_time = str(entry_starts[i])
+        f_start_time = str(entry_starts[i].get())
         if(len(f_start_time) == 4):
             f_start_time = "0" + f_start_time
 
-        f_end_time = str(entry_ends[i])
+        f_end_time = str(entry_ends[i].get())
         if(len(f_end_time) == 4):
             f_end_time = "0" + f_end_time
 
         f_start_date = "2023-04-" + f_day + " " + f_start_time + ":00"
         f_end_date = "2023-04-" + f_day + " " + f_end_time + ":00"
 
-        cursor.callproc("usp_AddMeetingTime", (entry_usernames[i], f_start_date, f_end_date, entry_priorities[i]))
+        cursor.callproc("usp_AddMeetingTime", (entry_usernames[i].get(), f_start_date, f_end_date, entry_priorities[i].get()))
 
 add_entry_button = Button(window, text="Add entry", command=create_entry_ui, width=20)
 save_button = Button(window, text="Save", command=save_all_entries, width=20)
