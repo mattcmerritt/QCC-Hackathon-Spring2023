@@ -1,5 +1,17 @@
+# SQL Backend
+import mysql.connector
+
+# UI
 from tkinter import *
 from tkinter.ttk import *
+
+def connect_to_server(user, password):
+    return mysql.connector.connect(user=user, passwd=password, host='localhost', database='schedules')
+
+# Connection
+# TODO: REMOVE USER INFORMATION BEFORE COMMITS!
+connection = connect_to_server('application', 'Requesting10Schedule!')
+cursor = connection.cursor()
 
 window = Tk()
 window.geometry("750x500")
@@ -89,6 +101,7 @@ def save_all_entries():
         f_end_date = "2023-04-" + f_day + " " + f_end_time + ":00"
 
         cursor.callproc("usp_AddMeetingTime", (entry_usernames[i].get(), f_start_date, f_end_date, entry_priorities[i].get()))
+        connection.commit()
 
 add_entry_button = Button(window, text="Add entry", command=create_entry_ui, width=20)
 save_button = Button(window, text="Save", command=save_all_entries, width=20)
@@ -108,3 +121,6 @@ priority = Label(window, text="Priority", width=20)
 priority.grid(row=1, column=4)
 
 window.mainloop()
+
+cursor.close()
+connection.close()
