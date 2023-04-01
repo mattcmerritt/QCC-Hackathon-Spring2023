@@ -40,45 +40,50 @@ for i, member in enumerate(members_list):
     window.members_dict[member].var = IntVar()                          # New IntVar for each member
     window.members_dict[member]['variable'] = window.members_dict[member].var
     window.members_dict[member].pack()
+def checkMembers():
+    print("got through")
+    for result in window.members_dict.values():
+        if result.var.get():
+            print(format(result['text']))
 
 # DAYS: Labeling
 dateLabel = tkinter.Label(window, text="Date:", font=('Arial', 10))
 dateLabel.pack()
 
-# DAYS: 
-window.var = IntVar()
-window.var.set(curr_datetime.day)
-window.dayOfMeeting = OptionMenu(window, window.var, *days_list)
+# DAYS: TO GET DAY USE day_selected
+day_selected = IntVar()
+day_selected.set(curr_datetime.day)
+window.dayOfMeeting = OptionMenu(window, day_selected, *days_list)
 window.dayOfMeeting.pack()
 
 # TIME: Labeling
 timeLabel = tkinter.Label(window, text="Time:", font=('Arial', 10))
 timeLabel.pack()
 
-# TIME:
-window.var = IntVar()
+# TIME: TO GET SELECTED TIME USE nextAvailableMeetingTime
+time_selected = IntVar()
 curr_time = curr_datetime.minute
 nextAvailableMeetingTime = ""
 if (curr_time < 15):
     nextAvailableMeetingTime = str(curr_datetime.hour) + ':00 - ' + str(curr_datetime.hour) + ':30'
 else:
     nextAvailableMeetingTime = str(curr_datetime.hour) + ':30 - ' + str(curr_datetime.hour + 1) + ':00'
-window.var.set(nextAvailableMeetingTime)
-window.timeOfMeeting = OptionMenu(window, window.var, *time_list)
+time_selected.set(nextAvailableMeetingTime)
+window.timeOfMeeting = OptionMenu(window, time_selected, *time_list)
 window.timeOfMeeting.pack()
 
-# PRIORITY: Labeling
-timeLabel = tkinter.Label(window, text="Priority:", font=('Arial', 10))
-timeLabel.pack()
+def getEverything():
+    print(time_selected)
+    print(time)
+    print(day_selected.get())
+    checkMembers()
 
-# PRIORITY: 
-window.var = IntVar()
-window.var.set(1)
-window.timeOfMeeting = OptionMenu(window, window.var, *priority_value)
-window.timeOfMeeting.pack()
+## Check BUTTON
+check_availability = Button(window, text='Check Availability', bd='5', command=getEverything)
+check_availability.pack()
 
-## SCHEDULE BUTTON
-schedule_button = Button(window, text='Schedule', bd='5')
-schedule_button.pack()
+
+
+
 
 window.mainloop()
