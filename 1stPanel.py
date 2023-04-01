@@ -41,7 +41,6 @@ for i, member in enumerate(members_list):
     window.members_dict[member]['variable'] = window.members_dict[member].var
     window.members_dict[member].pack()
 def checkMembers():
-    print("got through")
     for result in window.members_dict.values():
         if result.var.get():
             print(format(result['text']))
@@ -61,7 +60,7 @@ timeLabel = tkinter.Label(window, text="Time:", font=('Arial', 10))
 timeLabel.pack()
 
 # TIME: TO GET SELECTED TIME USE nextAvailableMeetingTime
-time_selected = IntVar()
+time_selected = StringVar()
 curr_time = curr_datetime.minute
 nextAvailableMeetingTime = ""
 if (curr_time < 15):
@@ -73,17 +72,12 @@ window.timeOfMeeting = OptionMenu(window, time_selected, *time_list)
 window.timeOfMeeting.pack()
 
 def getEverything():
-    print(time_selected)
-    print(time)
-    print(day_selected.get())
     checkMembers()
+    print(day_selected.get())
+    print(time_selected.get())
 
 ## Check BUTTON
 check_availability = Button(window, text='Check Availability', bd='5', command=getEverything)
 check_availability.pack()
-
-
-
-
 
 window.mainloop()
